@@ -1,0 +1,65 @@
+
+version: '3'
+
+services:
+    database:
+        image: postgres:10-alpine
+        volumes:
+            - database_volume:/var/lib/postgresql/data
+        env_file:
+            - config/db/database_env
+        networks:
+            - database_network
+
+    # web container, with flask + gunicorn
+    flaskapp:
+        build: .
+        environment:
+            - APP_ENV=dev
+        ports:
+            - 8080:8080
+        volumes:
+            - .:/home/gunicorn
+        # 因为 flaskapp 需要和 database 和 nginx 互联 所有加入两个网络
+        networks:
+            - database_network
+            - nginx_network
+            - redis_network
+        depends_on:
+            - database
+            - redis
+
+    # reverse proxy container (nginx)
+    nginx:
+        image: nginx:1.14-alpine
+        ports:
+            - 8000:80
+        volumes:
+            - ./config/nginx/conf.d:/etc/nginx/conf.d
+            - ./web/app/static:/opt/services/flaskapp/static
+        networks:
+            - nginx_network
+        depends_on:
+            - flaskapp
+    
+    # memory db
+    redis:
+        image: redis:5.0-alpine
+        volumes:
+            - redis_volume:/data
+        networks:
+            - redis_network
+        sysctls:
+            - net.core.somaxconn=1024
+
+networks:
+    database_network:
+        driver: bridge
+    nginx_network:
+        driver: bridge
+    redis_network:
+        driver: bridge
+
+volumes:
+    database_volume:
+    redis_volume:
