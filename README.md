@@ -8,11 +8,13 @@ Flask gunicorn nginx postgresql redis development env with docker
 
 
 ## Requirements
+
 docker server version: 18.06.1-ce and newer
 
 docker-compose version 1.22.0, build f46880f and newer
 
 ## Usage
+
 Create and start containers
 ```shell
 cd docker-flask && docker-compose up
