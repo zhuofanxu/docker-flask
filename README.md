@@ -19,10 +19,12 @@ Create and start containers
 ```shell
 cd docker-flask && docker-compose up
 ```
+
 access server via nginx
 ```shell
 curl http://localhost:8000
 ```
+
 access server via gunicorn directly
 ```shell
 curl http://localhost:8080
